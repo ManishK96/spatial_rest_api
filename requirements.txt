@@ -1,0 +1,9 @@
+Django==4.1.1
+psycopg2==2.8.4
+celery==5.2.7
+djangorestframework==3.13.1
+djangorestframework-gis==1.0
+django_celery_beat==2.3.0
+django-extensions==3.2.1
+
+

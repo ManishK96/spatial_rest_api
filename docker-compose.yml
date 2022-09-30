@@ -1,0 +1,64 @@
+version: "3"
+services:
+  backend:
+    build:
+      context: .
+    image: backend-image
+    container_name: backend
+    hostname: backend
+    restart: on-failure
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: >
+      sh -c "wait-for db:5432 && wait-for rabbit:5672 &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+      - rabbit
+    networks:
+      - shared_network
+  rabbit:
+    image: rabbitmq:3-management
+    container_name: rabbit
+    hostname: rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_VHOST=/
+    ports:
+      - "5682:5672"
+      - "15682:15672"
+    networks:
+      - shared_network
+  worker:
+      image: backend-image
+      restart: on-failure
+      command: >
+        sh -c "wait-for backend:8000 &&
+             celery worker -B -l info -A spatialapi.celery -s /tmp/celerybeat-schedule"
+      depends_on:
+        - backend
+        - rabbit
+        - db
+      networks:
+        - shared_network
+  db:
+      image: postgres:10-alpine
+      container_name: db
+      hostname: db
+      environment:
+        - POSTGRES_DB=app
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+      ports:
+        - "54320:5432"
+      networks:
+        - shared_network
+networks:
+    shared_network:
+      driver: bridge
