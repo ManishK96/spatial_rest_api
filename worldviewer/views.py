@@ -69,7 +69,7 @@ def get_neighbours(self, name):
 
     country = spatialdata.objects.get(ADMIN=name)
     neighbours = []
-    for data in (spatialdata.objects.filter(coordinates__touches=country.coordinates)):
+    for data in (spatialdata.objects.filter(coordinates__intersects=country.coordinates)):
         neighbours.append(data.ADMIN)
     if len(neighbours):
         return JsonResponse(neighbours, status = 200, safe=False)
