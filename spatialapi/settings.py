@@ -140,6 +140,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = 'amqp://guest:guest@127.0.0.1:5672//'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_IMPORTS= ('worldviewer.tasks')
 
 CELERY_BEAT_SCHEDULE = {
    'run-me-every-ten-minutes': {
